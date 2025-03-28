@@ -4,30 +4,38 @@ export const config = {
   runtime: 'edge',
 };
 
-export default async function handler(req: Request) {
+export default function handler(req: Request) {
   const { searchParams } = new URL(req.url);
-  const quote = searchParams.get('quote') || 'This is a quote.';
+  const quote = searchParams.get('quote') || 'This is a quote';
   const name = searchParams.get('name') || 'Anonymous';
 
   return new ImageResponse(
-    (
-      <div
-        style={{
-          fontSize: 40,
-          color: 'white',
-          background: '#111',
-          width: '100%',
-          height: '100%',
-          padding: '60px',
+    {
+      type: 'div',
+      props: {
+        style: {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-        }}
-      >
-        <div style={{ marginBottom: '40px' }}>{quote}</div>
-        <div style={{ fontSize: 24, color: '#aaa' }}>– {name}</div>
-      </div>
-    ),
+          width: '100%',
+          height: '100%',
+          backgroundColor: '#111',
+          padding: 80,
+          fontSize: 48,
+          color: 'white',
+        },
+        children: [
+          { type: 'div', props: { children: quote } },
+          {
+            type: 'div',
+            props: {
+              style: { marginTop: 40, fontSize: 28, color: '#aaa' },
+              children: `– ${name}`,
+            },
+          },
+        ],
+      },
+    },
     {
       width: 1200,
       height: 630,
