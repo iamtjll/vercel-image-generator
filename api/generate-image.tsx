@@ -4,7 +4,7 @@ export const config = {
   runtime: 'edge',
 };
 
-export default async function handler(req: Request) {
+export default function handler(req: Request) {
   const { searchParams } = new URL(req.url);
 
   const quote = searchParams.get('quote') || 'This is a quote.';
@@ -16,6 +16,8 @@ export default async function handler(req: Request) {
   const handle = searchParams.get('handle') || '';
   const website = searchParams.get('website') || '';
 
+  const useImageBg = bg.startsWith('http');
+
   return new ImageResponse(
     {
       type: 'div',
@@ -23,17 +25,34 @@ export default async function handler(req: Request) {
         style: {
           width: '100%',
           height: '100%',
-          background: bg.startsWith('http') ? `url(${bg}) center / cover` : bg,
-          color: 'white',
+          backgroundColor: useImageBg ? '#000' : bg,
+          backgroundImage: useImageBg ? `url(${bg})` : undefined,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          padding: 80,
-          fontFamily: 'sans-serif',
           position: 'relative',
+          padding: 100,
+          color: 'white',
+          fontFamily: 'sans-serif',
         },
         children: [
+          // Dark overlay if bg is an image
+          useImageBg && {
+            type: 'div',
+            props: {
+              style: {
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                background: 'rgba(0, 0, 0, 0.5)',
+                top: 0,
+                left: 0,
+              },
+            },
+          },
           logo && {
             type: 'img',
             props: {
@@ -56,16 +75,30 @@ export default async function handler(req: Request) {
                 height: 200,
                 marginBottom: 40,
                 objectFit: 'cover',
+                zIndex: 1,
               },
+            },
+          },
+          {
+            type: 'div',
+            props: {
+              style: {
+                fontSize: 48,
+                color: '#FFD700',
+                marginBottom: 20,
+                zIndex: 1,
+              },
+              children: '★★★★★',
             },
           },
           title && {
             type: 'div',
             props: {
               style: {
-                fontSize: 48,
-                fontWeight: 'bold',
+                fontSize: 42,
+                fontWeight: 600,
                 marginBottom: 20,
+                zIndex: 1,
               },
               children: title,
             },
@@ -74,9 +107,11 @@ export default async function handler(req: Request) {
             type: 'div',
             props: {
               style: {
-                fontSize: 40,
+                fontSize: 36,
                 textAlign: 'center',
                 maxWidth: 1000,
+                lineHeight: 1.4,
+                zIndex: 1,
               },
               children: quote,
             },
@@ -88,6 +123,7 @@ export default async function handler(req: Request) {
                 marginTop: 30,
                 fontSize: 28,
                 color: '#ccc',
+                zIndex: 1,
               },
               children: `– ${name}`,
             },
@@ -101,6 +137,7 @@ export default async function handler(req: Request) {
                 fontSize: 24,
                 color: '#aaa',
                 textAlign: 'center',
+                zIndex: 1,
               },
               children: `${handle}${handle && website ? ' · ' : ''}${website}`,
             },
